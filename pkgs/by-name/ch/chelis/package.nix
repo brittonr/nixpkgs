@@ -58,7 +58,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
   };
 
   # The installed archive must remain byte-identical to the compiler export.
-  stripExclude = [ "lib/libchelis_runtime.a" ];
+  stripDebugList = [ "bin" "libexec" ];
 
   postInstall = ''
     export_dir="$TMPDIR/runtime-export"
