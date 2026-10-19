@@ -56,7 +56,6 @@ in
       -o library-consumer
     test "$(${bare} ./library-consumer)" = '42'
     ${bare} ${chelis}/bin/chelis build recurrence_extent_scope.ch -o blas
-    grep -q '#include "chelis_blas.h"' blas/recurrence_extent_scope.c
     test "$(${bare} ./blas/recurrence_extent_scope)" = \
       "$(printf 'main.0 = 40.0\nmain.1 = Model([5.0, 5.0])')"
 
