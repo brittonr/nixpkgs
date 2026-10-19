@@ -37,14 +37,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     hash = "sha256-jZ5/qd/ZJX3DXvNOxcZ7PegybFWm24QqWre9AZLFXu4=";
   };
 
-  # Keep the release lock local so evaluation never needs a source build.
-  cargoLock = {
-    lockFile = ./Cargo.lock;
-    outputHashes = {
-      "arb-sys-0.3.6" = "sha256-6h/SdhNEVgVSD8DOlnJcSrAlc0LK1yc6GZNzzVkVHEg=";
-      "carcara-1.1.0" = "sha256-MiGxAA7LcagOohofUrt0FMURqsn85lq0d4Prz4SsfI8=";
-    };
-  };
+  cargoHash = "sha256-5JHEehHHXVy6Qf5pCCVesI8KnIkmX703xjLbVWcMTlg=";
 
   nativeBuildInputs = [
     makeBinaryWrapper

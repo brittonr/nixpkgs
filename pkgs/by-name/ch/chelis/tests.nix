@@ -40,14 +40,21 @@ in
     touch "$out"
   '';
 
-  build = runCommand "chelis-wrapped-build" { } ''
+  build = runCommand "chelis-wrapped-build" {
+    nativeBuildInputs = [ stdenv.cc ];
+  } ''
     cp ${chelis.src}/examples/{hello_tensor,native_library,recurrence_extent_scope}.ch .
     chmod u+w *.ch
     ${bare} ${chelis}/bin/chelis build hello_tensor.ch -o hello
     test "$(${bare} ./hello/hello_tensor)" = \
       'main = tensor(shape=[3], data=[5.0, 7.0, 9.0])'
     ${bare} ${chelis}/bin/chelis build native_library.ch -o library
-    test "$(head -c 8 library/libnative_library.a)" = '!<arch>'
+    cc -std=c11 -Wall -Wextra -Werror -I${chelis}/include -Ilibrary \
+      ${./library-consumer.c} library/libnative_library.a \
+      ${chelis}/lib/libchelis_runtime.a \
+      ${if stdenv.hostPlatform.isDarwin then "-framework Accelerate" else "-lm -lpthread -ldl"} \
+      -o library-consumer
+    test "$(${bare} ./library-consumer)" = '42'
     ${bare} ${chelis}/bin/chelis build recurrence_extent_scope.ch -o blas
     grep -q '#include "chelis_blas.h"' blas/recurrence_extent_scope.c
     test "$(${bare} ./blas/recurrence_extent_scope)" = \
