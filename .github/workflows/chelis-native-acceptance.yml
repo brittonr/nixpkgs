@@ -50,8 +50,10 @@ jobs:
       - name: Execute installed compiler without host tools
         run: |
           test "$(./package/bin/chelis --version)" = 'chelis 0.21.1'
-          printf '%s\n' 'main = 42' > "$RUNNER_TEMP/chelis-smoke.ch"
+          printf '%s\n' 'main = 42' > "$RUNNER_TEMP/smoke.ch"
           env -i HOME="$RUNNER_TEMP" PATH=/var/empty ./package/bin/chelis \
-            build "$RUNNER_TEMP/chelis-smoke.ch" --output "$RUNNER_TEMP/chelis-smoke"
-          test "$("$RUNNER_TEMP/chelis-smoke")" = 'main = 42'
+            build "$RUNNER_TEMP/smoke.ch" --output "$RUNNER_TEMP/chelis-smoke"
+          actual="$(env -i HOME="$RUNNER_TEMP" PATH=/var/empty "$RUNNER_TEMP/chelis-smoke/smoke")"
+          printf '%s\n' "$actual"
+          test "$actual" = 'main = 42'
           nix path-info --closure-size ./package
