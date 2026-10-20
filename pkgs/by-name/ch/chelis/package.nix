@@ -20,21 +20,34 @@ let
     "chelis_math.h"
   ];
   wrapperArgs = [
-    "--prefix" "PATH" ":" (lib.makeBinPath [ stdenv.cc stdenv.cc.bintools ])
-  ] ++ lib.optionals stdenv.hostPlatform.isLinux [
-    "--prefix" "CHELIS_C_INCLUDE_PATH" ":" "${lib.getDev openblas}/include"
-    "--prefix" "CHELIS_C_LIBRARY_PATH" ":" "${lib.getLib openblas}/lib"
+    "--prefix"
+    "PATH"
+    ":"
+    (lib.makeBinPath [
+      stdenv.cc
+      stdenv.cc.bintools
+    ])
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
+    "--prefix"
+    "CHELIS_C_INCLUDE_PATH"
+    ":"
+    "${lib.getDev openblas}/include"
+    "--prefix"
+    "CHELIS_C_LIBRARY_PATH"
+    ":"
+    "${lib.getLib openblas}/lib"
   ];
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "chelis";
-  version = "0.21.0";
+  version = "0.21.1";
 
   src = fetchFromGitHub {
     owner = "Chelis-Lang";
     repo = "chelis";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-jZ5/qd/ZJX3DXvNOxcZ7PegybFWm24QqWre9AZLFXu4=";
+    hash = "sha256-aDLXepqbs5A5+2+H9hCY3oYr37G6ZLD18nUnylfMyOI=";
   };
 
   cargoHash = "sha256-5JHEehHHXVy6Qf5pCCVesI8KnIkmX703xjLbVWcMTlg=";
@@ -44,10 +57,16 @@ rustPlatform.buildRustPackage (finalAttrs: {
     rustPlatform.bindgenHook
   ];
 
-  cargoBuildFlags = [ "--package=chelis-cli" "--bin=chelis" ];
+  cargoBuildFlags = [
+    "--package=chelis-cli"
+    "--bin=chelis"
+  ];
   buildNoDefaultFeatures = true;
   buildFeatures = [ "distribution" ];
-  cargoTestFlags = [ "--package=chelis-cli" "--bins" ];
+  cargoTestFlags = [
+    "--package=chelis-cli"
+    "--bins"
+  ];
 
   env = {
     CVC5_DIR = "${cvc5Tree}";
@@ -58,7 +77,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
   };
 
   # The installed archive must remain byte-identical to the compiler export.
-  stripDebugList = [ "bin" "libexec" ];
+  stripDebugList = [
+    "bin"
+    "libexec"
+  ];
 
   postInstall = ''
     export_dir="$TMPDIR/runtime-export"
@@ -93,9 +115,18 @@ rustPlatform.buildRustPackage (finalAttrs: {
     homepage = "https://chelis.ch";
     changelog = "https://github.com/Chelis-Lang/chelis/releases/tag/v${finalAttrs.version}";
     # Chelis is MIT. Clarabel, cvc5, LibPoly, and static GMP keep their licenses.
-    license = with lib.licenses; [ mit asl20 bsd3 lgpl3Plus ];
+    license = with lib.licenses; [
+      mit
+      asl20
+      bsd3
+      lgpl3Plus
+    ];
     maintainers = [ lib.maintainers.brittonr ];
     mainProgram = "chelis";
-    platforms = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" ];
+    platforms = [
+      "x86_64-linux"
+      "aarch64-linux"
+      "aarch64-darwin"
+    ];
   };
 })

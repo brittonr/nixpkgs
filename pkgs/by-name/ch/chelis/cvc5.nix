@@ -49,7 +49,10 @@ let
       "-DGMP_INCLUDE_DIR=${gmpStatic.dev}/include"
       "-DGMP_LIBRARY=${gmpStatic}/lib/libgmp.a"
     ];
-    buildFlags = [ "static_pic_poly" "static_pic_polyxx" ];
+    buildFlags = [
+      "static_pic_poly"
+      "static_pic_polyxx"
+    ];
     installPhase = ''
       runHook preInstall
       mkdir -p "$out/lib" "$out/include/poly/polyxx"
@@ -74,45 +77,56 @@ let
       runHook postInstall
     '';
   };
-  solver = (cvc5.override {
-    gmp = gmpStatic;
-    cadical' = cadicalStatic;
-    libpoly = polyStatic;
-    symfpu = symfpuHeaders;
-  }).overrideAttrs (old: {
-    inherit version;
-    src = source;
-    buildInputs = [ cadicalStatic.dev gmpStatic polyStatic symfpuHeaders ];
-    postPatch = ''
-      substituteInPlace cmake/FindGMP.cmake --replace-fail \
-        'LINK_LIBRARIES ''${GMP_LIBRARIES} ''${GMPXX_LIBRARIES}' \
-        'LINK_LIBRARIES ''${GMPXX_LIBRARIES} ''${GMP_LIBRARIES}'
-    '';
-    cmakeBuildType = "Production";
-    cmakeFlags = [
-      "-DBUILD_SHARED_LIBS=OFF"
-      "-DENABLE_AUTO_DOWNLOAD=OFF"
-      "-DBUILD_GMP=OFF"
-      "-DENABLE_GPL=OFF"
-      "-DUSE_CLN=OFF"
-      "-DUSE_POLY=ON"
-      "-DCaDiCaL_INCLUDE_DIR=${cadicalStatic.dev}/include"
-      "-DCaDiCaL_LIBRARIES=${cadicalStatic.lib}/lib/libcadical.a"
-      "-DGMP_INCLUDE_DIR=${gmpStatic.dev}/include"
-      "-DGMPXX_INCLUDE_DIR=${gmpStatic.dev}/include"
-      "-DGMP_LIBRARIES=${gmpStatic}/lib/libgmp.a"
-      "-DGMPXX_LIBRARIES=${gmpStatic}/lib/libgmpxx.a"
-      "-DPoly_INCLUDE_DIR=${polyStatic}/include"
-      "-DPoly_LIBRARIES=${polyStatic}/lib/libpicpoly.a"
-      "-DPolyXX_LIBRARIES=${polyStatic}/lib/libpicpolyxx.a"
-      "-DSymFPU_INCLUDE_DIR=${symfpuHeaders}/include"
-      "-DSTATIC_BINARY=OFF"
-    ];
-    doCheck = false;
-    meta = old.meta // {
-      license = with lib.licenses; [ bsd3 mit lgpl3Plus ];
-    };
-  });
+  solver =
+    (cvc5.override {
+      gmp = gmpStatic;
+      cadical' = cadicalStatic;
+      libpoly = polyStatic;
+      symfpu = symfpuHeaders;
+    }).overrideAttrs
+      (old: {
+        inherit version;
+        src = source;
+        buildInputs = [
+          cadicalStatic.dev
+          gmpStatic
+          polyStatic
+          symfpuHeaders
+        ];
+        postPatch = ''
+          substituteInPlace cmake/FindGMP.cmake --replace-fail \
+            'LINK_LIBRARIES ''${GMP_LIBRARIES} ''${GMPXX_LIBRARIES}' \
+            'LINK_LIBRARIES ''${GMPXX_LIBRARIES} ''${GMP_LIBRARIES}'
+        '';
+        cmakeBuildType = "Production";
+        cmakeFlags = [
+          "-DBUILD_SHARED_LIBS=OFF"
+          "-DENABLE_AUTO_DOWNLOAD=OFF"
+          "-DBUILD_GMP=OFF"
+          "-DENABLE_GPL=OFF"
+          "-DUSE_CLN=OFF"
+          "-DUSE_POLY=ON"
+          "-DCaDiCaL_INCLUDE_DIR=${cadicalStatic.dev}/include"
+          "-DCaDiCaL_LIBRARIES=${cadicalStatic.lib}/lib/libcadical.a"
+          "-DGMP_INCLUDE_DIR=${gmpStatic.dev}/include"
+          "-DGMPXX_INCLUDE_DIR=${gmpStatic.dev}/include"
+          "-DGMP_LIBRARIES=${gmpStatic}/lib/libgmp.a"
+          "-DGMPXX_LIBRARIES=${gmpStatic}/lib/libgmpxx.a"
+          "-DPoly_INCLUDE_DIR=${polyStatic}/include"
+          "-DPoly_LIBRARIES=${polyStatic}/lib/libpicpoly.a"
+          "-DPolyXX_LIBRARIES=${polyStatic}/lib/libpicpolyxx.a"
+          "-DSymFPU_INCLUDE_DIR=${symfpuHeaders}/include"
+          "-DSTATIC_BINARY=OFF"
+        ];
+        doCheck = false;
+        meta = old.meta // {
+          license = with lib.licenses; [
+            bsd3
+            mit
+            lgpl3Plus
+          ];
+        };
+      });
 in
 # cvc5-sys checks the version and archive before it decides to build or download.
 runCommand "cvc5-${version}-rust-tree" { } ''

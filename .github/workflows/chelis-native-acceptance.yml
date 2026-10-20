@@ -1,0 +1,57 @@
+name: Chelis package acceptance
+
+on:
+  push:
+    branches: [chelis-native-acceptance]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chelis-native-acceptance-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  native:
+    name: Chelis (${{ matrix.system }})
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            system: x86_64-linux
+          - runner: ubuntu-24.04-arm
+            system: aarch64-linux
+          - runner: macos-14
+            system: aarch64-darwin
+    env:
+      SYSTEM: ${{ matrix.system }}
+    steps:
+      - uses: actions/checkout@de3dc42e5aac5ba805825da76410c181273ba90b1
+      - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24
+        with:
+          extra_nix_config: sandbox = true
+      - name: Verify native system and sandbox
+        run: |
+          test "$(nix eval --impure --raw --expr builtins.currentSystem)" = "$SYSTEM"
+          test "$(nix config show sandbox)" = true
+      - name: Build compiler and sandbox consumers
+        run: |
+          nix-build . -A chelis --argstr system "$SYSTEM" --out-link package \
+            --max-jobs 2 --cores 2 --option allow-import-from-derivation false
+          nix-build . -A chelis.tests --argstr system "$SYSTEM" --no-out-link \
+            --max-jobs 2 --cores 2 --option allow-import-from-derivation false
+      - name: Execute installed compiler without host tools
+        run: |
+          test "$(./package/bin/chelis --version)" = 'chelis 0.21.1'
+          printf '%s\n' 'main = 42' > "$RUNNER_TEMP/chelis-smoke.ch"
+          env -i HOME="$RUNNER_TEMP" PATH=/var/empty ./package/bin/chelis \
+            build "$RUNNER_TEMP/chelis-smoke.ch" --out "$RUNNER_TEMP/chelis-smoke"
+          test "$("$RUNNER_TEMP/chelis-smoke")" = 'main = 42'
+          nix path-info --closure-size ./package
