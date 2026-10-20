@@ -52,6 +52,6 @@ jobs:
           test "$(./package/bin/chelis --version)" = 'chelis 0.21.1'
           printf '%s\n' 'main = 42' > "$RUNNER_TEMP/chelis-smoke.ch"
           env -i HOME="$RUNNER_TEMP" PATH=/var/empty ./package/bin/chelis \
-            build "$RUNNER_TEMP/chelis-smoke.ch" --out "$RUNNER_TEMP/chelis-smoke"
+            build "$RUNNER_TEMP/chelis-smoke.ch" --output "$RUNNER_TEMP/chelis-smoke"
           test "$("$RUNNER_TEMP/chelis-smoke")" = 'main = 42'
           nix path-info --closure-size ./package
