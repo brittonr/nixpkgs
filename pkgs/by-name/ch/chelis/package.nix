@@ -50,7 +50,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     hash = "sha256-aDLXepqbs5A5+2+H9hCY3oYr37G6ZLD18nUnylfMyOI=";
   };
 
-  cargoHash = "sha256-5JHEehHHXVy6Qf5pCCVesI8KnIkmX703xjLbVWcMTlg=";
+  cargoHash = "sha256-8eqJNgG0abog2WQt7xWDSGcOKl/UZWGXakbBZ1IR0D0=";
 
   nativeBuildInputs = [
     makeBinaryWrapper

@@ -33,7 +33,7 @@ jobs:
     env:
       SYSTEM: ${{ matrix.system }}
     steps:
-      - uses: actions/checkout@de3dc42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: cachix/install-nix-action@13d8dd58da0234aa297dedd986986ccb8e7f3e24
         with:
           extra_nix_config: sandbox = true
